@@ -1,0 +1,36 @@
+﻿@page "/login"
+@inject HttpClient http
+@inject NavigationManager NavManager
+
+<h3>Login</h3>
+
+
+
+@code {
+    private string email;
+    private string password;
+    private string errorMessage;
+
+    private async Task LoginUser()
+    {
+        var loginRequest = new LoginRequest
+        {
+            Email = email,
+            Password = password
+        };
+
+        var response = await http.PostAsJsonAsync("api/auth/login", loginRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            await TokenStorageHelper.SetToken(result.Token);
+            NavManager.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Invalid email or password";
+        }
+    }
+
+}
